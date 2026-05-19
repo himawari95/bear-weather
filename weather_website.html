@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小熊天气</title>
+    <link rel="icon" href="http://openweathermap.org/img/wn/03d.png" type="image/png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 加载界面 -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h2 data-lang-key="loadingTitle">加载天气数据中...</h2>
+            <p data-lang-key="loadingSubtitle">正在为您获取最新的天气信息</p>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- 导航栏 -->
+        <nav class="navbar">
+            <div class="nav-left">
+                <div class="logo">
+                    <img src="400ff38863b64c139dc9a7efdea8059cpreview.jpeg~tplv-a9rns2rl98-downsize_watermark_1_5_b.png" alt="小熊天气 Logo" loading="lazy" width="60" height="60">
+                    <span data-lang-key="pageTitle">小熊天气</span>
+                </div>
+                <div class="city-selector">
+                    <div class="city-display" id="city-display">
+                        <span id="current-city-name"></span>
+                        <span class="dropdown-icon">▼</span>
+                    </div>
+                    <div class="search-container hidden" id="search-container">
+                        <input type="text" id="city-search" placeholder="输入城市名称" data-lang-key="searchPlaceholder" autocomplete="off">
+                        <button id="search-btn" class="search-btn" data-lang-key="searchButton">搜索</button>
+                        <div class="autocomplete-list" id="autocomplete-list"></div>
+                    </div>
+                    <div class="city-list hidden" id="city-list">
+                        <!-- 当前定位城市区域 -->
+                        <div class="city-list-section">
+                            <div class="section-title" data-lang-key="currentLocationCity">当前定位城市</div>
+                            <div class="city-item" id="current-location-city" data-value="current"></div>
+                        </div>
+                        <!-- 历史搜索记录区域 -->
+                        <div class="history-list hidden" id="history-list">
+                            <div class="history-header">
+                                <span class="history-title" data-lang-key="recentSearches">最近搜索</span>
+                                <button class="clear-history-btn" id="clear-history-btn" data-lang-key="clearAll">清除全部</button>
+                            </div>
+                            <div class="history-items" id="history-items"></div>
+                        </div>
+                        <!-- 热门城市区域 -->
+                        <div class="city-list-section">
+                            <div class="section-title" data-lang-key="popularCities">热门城市</div>
+                            <div class="city-item" data-value="guangzhou">广州市</div>
+                            <div class="city-item" data-value="beijing">北京市</div>
+                            <div class="city-item" data-value="shanghai">上海市</div>
+                            <div class="city-item" data-value="shenzhen">深圳市</div>
+                            <div class="city-item" data-value="hangzhou">杭州市</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="nav-right">
+                <ul class="nav-links">
+                    <li><a href="#" data-lang-key="navHome">天气实况</a></li>
+                    <li><a href="#" data-lang-key="navForecast">未来天气预报</a></li>
+                    <li><a href="#" data-lang-key="navWarning">生活建议</a></li>
+                    <li><a href="#" data-lang-key="navTrend">天气趋势图</a></li>
+                    <li><a href="#" data-lang-key="navAIGC">AI助手</a></li>
+                </ul>
+                <div class="nav-actions">
+                    <button id="voice-toggle" class="voice-btn" title="语音播报">
+                        <span class="voice-icon">🔊</span>
+                    </button>
+                    <div class="language-selector">
+                        <select id="language-selector">
+                            <option value="zh">中文</option>
+                            <option value="en">English</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 天气信息主区域 -->
+        <main class="weather-main" id="weather-current">
+            <!-- 天气头部信息 -->
+            <header class="weather-header">
+                <div class="weather-title">
+                    <h1 data-lang-key="weatherForecast">天气预报</h1>
+                    <span class="english-title">WEATHER FORECAST</span>
+                </div>
+                <div class="current-location">
+                    <span id="current-city"></span>
+                    <span id="location-status" class="location-status"></span>
+                </div>
+                <div class="current-date">
+                    <span id="current-date"></span>
+                    <span id="weekday"></span>
+                </div>
+            </header>
+
+            <!-- 天气详情区域 -->
+            <section class="weather-details">
+                <!-- 左侧提示信息 -->
+                <div class="weather-alert" id="weather-alert">
+                    <div class="alert-content">
+                        <h2></h2>
+                        <p></p>
+                        <div class="alert-subtitle"></div>
+                    </div>
+                </div>
+
+                <!-- 右侧天气数据 -->
+                <div class="weather-data">
+                    <div class="temperature-section">
+                        <div class="temperature">
+                            <span id="temp-value"></span>
+                            <span class="temp-unit">°C</span>
+                        </div>
+                        <div class="weather-status">
+                            <div class="air-quality">
+                                <span data-lang-key="airQuality">空气质量</span>
+                                <span id="aqi-value"></span>
+                                <span class="aqi-label"></span>
+                            </div>
+                            <div class="humidity">
+                                <span data-lang-key="humidity">湿度</span>
+                                <span id="humidity-value"></span>
+                            </div>
+                            <div class="wind">
+                                <span data-lang-key="wind">风向</span>
+                                <span id="wind-direction"></span>
+                                <span id="wind-speed"></span>
+                            </div>
+                            <div class="pressure">
+                                <span data-lang-key="pressure">气压</span>
+                                <span id="pressure-value"></span>
+                            </div>
+                            <div class="visibility">
+                                <span data-lang-key="visibility">能见度</span>
+                                <span id="visibility-value"></span>
+                            </div>
+                            <div class="uv-index">
+                                <span data-lang-key="uvIndex">紫外线</span>
+                                <div class="uv-value-container">
+                                    <span id="uv-index-value"></span>
+                                    <span class="uv-label"></span>
+                                </div>
+                            </div>
+                            <div class="feels-like">
+                                <span data-lang-key="feelsLike">体感温度</span>
+                                <span id="feels-like-value"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="weather-type">
+                        <div class="weather-icon">
+                            <img id="weather-icon" src="" alt="天气图标">
+                        </div>
+                        <h3 id="weather-description"></h3>
+                        <div class="temperature-range" id="temperature-range"></div>
+                        <p id="weather-detail"></p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 小时天气预报区域 -->
+        <section class="hourly-forecast-section" id="hourly-forecast-section">
+            <h2 data-lang-key="hourlyForecast" id="hourly-forecast-title">小时天气预报</h2>
+            <div class="hourly-forecast-container" id="hourly-forecast-container">
+                <!-- 小时天气数据将通过JavaScript动态生成 -->
+            </div>
+        </section>
+
+        <!-- 未来天气预报区域 -->
+        <section class="forecast-section" id="weather-forecast">
+            <h2 data-lang-key="futureForecast">未来天气预报</h2>
+            <div class="forecast-container" id="forecast-container">
+                <!-- 未来天气数据将通过JavaScript动态生成 -->
+            </div>
+        </section>
+
+        <!-- 生活建议模块 -->
+        <section class="weather-warning-section" id="weather-warning">
+            <h2 data-lang-key="navWarning" id="warning-title">生活建议</h2>
+            <div class="weather-warning-container" id="weather-warning-container">
+                <!-- 预警数据将通过JavaScript动态生成 -->
+            </div>
+        </section>
+
+        <!-- 天气趋势图模块 -->
+        <section class="weather-trend-section" id="weather-trend">
+            <h2 data-lang-key="navTrend">天气趋势图</h2>
+            <div class="weather-trend-container">
+                <div class="trend-chart-wrapper">
+                    <canvas id="weather-trend-chart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- AIGC互动模块 -->
+        <section class="aigc-section" id="weather-aigc">
+            <h2 data-lang-key="navAIGC">AI助手</h2>
+            <div class="aigc-container">
+                <div class="aigc-chat">
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="message bot-message">
+                            <div class="message-content">
+                                <p>你好！我是小熊天气的AI助手，有什么可以帮你的吗？</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-input">
+                        <button id="aigc-voice-input" class="voice-input-btn" title="语音输入" aria-label="语音输入">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 19c-3.866 0-7-3.134-7-7v-1c0-3.866 3.134-7 7-7s7 3.134 7 7v1c0 3.866-3.134 7-7 7z"/>
+                                <path d="M19 12v1c0 2.76-2.24 5-5 5s-5-2.24-5-5v-1"/>
+                            </svg>
+                        </button>
+                        <input type="text" id="aigc-input" placeholder="输入你的问题，比如：今天适合户外运动吗？" data-lang-key="aigcPlaceholder">
+                        <button id="aigc-send" data-lang-key="aigcSend">发送</button>
+                    </div>
+                    <div class="chat-voice-settings">
+                        <label class="voice-toggle-label">
+                            <input type="checkbox" id="aigc-voice-toggle">
+                            <span>AI语音播报</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 页脚 -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <p data-lang-key="footerCopyright">© 2025 Bear Weather 天气预报 | 数据来源: OpenWeatherMap</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#" data-lang-key="footerPrivacy">隐私政策</a>
+                    <a href="#" data-lang-key="footerTerms">使用条款</a>
+                    <a href="#" data-lang-key="footerContact">联系我们</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- JavaScript文件 -->
+    <script src="script.js"></script>
+    <script>
+        // 页面加载完成后初始化
+        window.onload = function() {
+            initPage();
+        };
+    </script>
+</body>
+</html>
